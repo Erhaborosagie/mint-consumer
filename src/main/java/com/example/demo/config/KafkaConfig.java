@@ -2,8 +2,10 @@ package com.example.demo.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -15,13 +17,15 @@ import java.util.Map;
 /**
  * Created by Osagie Erhabor on 26/02/2020.
  */
+@EnableKafka
 @Configuration
 public class KafkaConfig {
     @Bean
+    @ConditionalOnMissingBean(name = "kafkaListenerContainerFactory")
     public ConsumerFactory<String, String> consumerFactory(){
 
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.01");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.01:9092");
         config.put(ConsumerConfig.GROUP_ID_CONFIG,"group_id");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -29,7 +33,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory kafkaListenerContainerFactorye(){
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(){
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
